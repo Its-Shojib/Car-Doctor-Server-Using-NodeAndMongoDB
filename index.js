@@ -1,3 +1,4 @@
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 require('dotenv').config()
 let cors = require('cors')
@@ -8,9 +9,6 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
-// console.log(process.env.DATA_USER,process.env.DATA_PASS);
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oglq0ui.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,6 +24,27 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    let serviceCollection = client.db('CarDoctorDB').collection('Services')
+
+    app.get('/services', async (req, res) => {
+      let cursor = serviceCollection.find();
+      let result = await cursor.toArray();
+      res.send(result);
+    })
+    app.get('/services/:id', async (req, res) => {
+      let id = req.params.id;
+      let query = { _id: new ObjectId(id) }
+
+      let options = {
+        projection: { title: 1, price: 1 , service_id: 1}
+      }
+      let result = await serviceCollection.findOne(query,options);
+      res.send(result);
+    })
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
