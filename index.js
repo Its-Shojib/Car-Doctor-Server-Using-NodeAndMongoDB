@@ -25,7 +25,10 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     let serviceCollection = client.db('CarDoctorDB').collection('Services')
+    let bookingCollection = client.db('CarDoctorDB').collection('Bookings');
 
+
+    /*Service Database */
     app.get('/services', async (req, res) => {
       let cursor = serviceCollection.find();
       let result = await cursor.toArray();
@@ -36,12 +39,18 @@ async function run() {
       let query = { _id: new ObjectId(id) }
 
       let options = {
-        projection: { title: 1, price: 1 , service_id: 1}
+        projection: { title: 1, price: 1 , service_id: 1, img: 1}
       }
       let result = await serviceCollection.findOne(query,options);
       res.send(result);
     })
 
+    /*Booking Database */
+    app.post('/bookings',async(req,res)=>{
+      let bookings = req.body;
+      let result = await bookingCollection.insertOne(bookings)
+      res.send(result)
+    })
 
 
 
