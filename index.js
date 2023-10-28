@@ -2,11 +2,15 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 require('dotenv').config()
 let cors = require('cors')
+let jwt = require('jsonwebtoken');
 const app = express()
 const port = process.env.PORT || 5000
 
 // Middleware
-app.use(cors())
+app.use(cors({
+  origin: ['http://localhost:5173'],
+  credentials: true
+}))
 app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oglq0ui.mongodb.net/?retryWrites=true&w=majority`;
@@ -26,6 +30,21 @@ async function run() {
     await client.connect();
     let serviceCollection = client.db('CarDoctorDB').collection('Services')
     let bookingCollection = client.db('CarDoctorDB').collection('Bookings');
+
+
+    /*Auth Related Api */
+    app.post('/jwt',async(req,res)=>{
+      let user = req.body;
+      console.log(user);
+      let token = jwt.sign(user, process.env.ACEESS_TOKEN_SECRET, {expiresIn: '1h'})
+      res
+      .cookie('token',token,{
+        httpOnly:true,
+        secure: false,
+        sameSite: 'none'
+      })
+      .send({success: true})
+    })
 
 
     /*Service Database */
