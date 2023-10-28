@@ -39,18 +39,52 @@ async function run() {
       let query = { _id: new ObjectId(id) }
 
       let options = {
-        projection: { title: 1, price: 1 , service_id: 1, img: 1}
+        projection: { title: 1, price: 1, service_id: 1, img: 1 }
       }
-      let result = await serviceCollection.findOne(query,options);
+      let result = await serviceCollection.findOne(query, options);
       res.send(result);
     })
 
-    /*Booking Database */
-    app.post('/bookings',async(req,res)=>{
+    /*Post Booking Database */
+    app.post('/bookings', async (req, res) => {
       let bookings = req.body;
       let result = await bookingCollection.insertOne(bookings)
       res.send(result)
     })
+    /*Get from Booking Database */
+    app.get('/bookings', async (req, res) => {
+      console.log(req.query.email);
+
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email }
+      }
+      let result = await bookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    /*Delete Booking Database */
+    app.delete('/bookings/:id', async (req, res) => {
+      let id = req.params.id;
+      let query = { _id: new ObjectId(id) }
+      let result = await bookingCollection.deleteOne(query)
+      res.send(result)
+    })
+    /*Update Booking Database */
+    app.patch('/bookings/:id', async (req, res) => {
+      let updatedBooking = req.body;
+      let id = req.params.id;
+      let query = { _id: new ObjectId(id) }
+      console.log(updatedBooking);
+      let updateDoc = {
+        $set:{
+          status: updatedBooking.status
+        },
+      }
+      let result = await bookingCollection.updateOne(query,updateDoc)
+      res.send(result)
+    })
+
 
 
 
