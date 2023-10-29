@@ -37,12 +37,16 @@ async function run() {
       let user = req.body;
       console.log(user);
       let token = jwt.sign(user, process.env.ACEESS_TOKEN_SECRET, {expiresIn: '1h'})
+      // .cookie('token',token,{
+      //   httpOnly:true,
+      //   secure: false,
+      //   sameSite: 'none'
+      // })
       res
-      .cookie('token',token,{
-        httpOnly:true,
-        secure: false,
-        sameSite: 'none'
-      })
+      .cookie('token',token,{ 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', })
       .send({success: true})
     })
 
